@@ -31,6 +31,7 @@ class UsuarioController {
                 auth: true,
                 token: token,
                 nome: user.nome,
+                id: idUser
               });
             }
             return res

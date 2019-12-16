@@ -4,6 +4,8 @@ const AtividadeController = require('../controllers/AtividadeController')
 
 
 router.get('/listarAssuntos', AtividadeController.listarAssuntos);
+router.get('/listarAtividades/:id', AtividadeController.listarAtividadesPorAssunto);
+router.get('/listarEntradasSaidas/:id', AtividadeController.listarEntradasSaidasPorAtividade);
 
 
 

@@ -61,7 +61,11 @@ class SalaController {
               throw err;
             });
           }
-          return res.status(httpStatus.SUCCESS)
+          return res
+          .status(httpStatus.SUCCESS)
+          .send({
+            id: results.insertId
+          })
         });
       });
       

@@ -71,45 +71,70 @@ class AtividadeController {
     });
   }
 
-  // cadastrarSala (req,res) {
-  //   const { id } = req.params;
-  //   console.log("Entrou");
+  cadastrarAtividade(req,res) {
+  
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
 
-  //   connection.beginTransaction(function(err) {
-  //     if (err) {
-  //       throw err;
-  //     }
-  //     const inserts = {
-  //       usu_id: req.body.usuario,
-  //       nome: req.body.nome, 
-  //       descri: req.body.descri,
-  //       data: new Date(req.body.data),
-  //       aberta: req.body.aberta
-  //     };
+      const sala_id = req.body.salaId;
+      const entradasSaidas = req.body.entradaSaidaIds;
 
-  //     console.log(inserts)
+      const values = [];
 
-  //     connection.query('INSERT INTO sala set ?', inserts , function (error, results, fields) {
-  //       if (error) {
-  //         connection.rollback();
-  //         return res
-  //         .status(httpStatus.BAD_REQUEST)
-  //         .send({
-  //           errorMsg: error
-  //         });
-  //       }
-  //       connection.commit(function(err) {
-  //         if (err) {
-  //           return connection.rollback(function() {
-  //             throw err;
-  //           });
-  //         }
-  //         return res.status(httpStatus.SUCCESS)
-  //       });
-  //     });
+      entradasSaidas.forEach(eS => {
+        const insert = [sala_id, eS];
+        values.push(insert);
+      });
+
+      console.log(values);
+
+      // const inserts = {
+      //   usu_id: req.body.usuario,
+      //   nome: req.body.nome, 
+      //   descri: req.body.descri,
+      //   data: new Date(req.body.data),
+      //   aberta: req.body.aberta
+      // };
+
+
+      const ativ_id = req.body.atividade
+
+      connection.query('UPDATE sala SET ativ_id = ? WHERE id = ?', [ativ_id, sala_id] ,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.query('INSERT INTO sala_entrada_saida (sala_id, ent_sai_id) VALUES ?', [values] ,
+        function (error, results, fields) {
+          if (error) {
+            connection.rollback();
+            return res
+            .status(httpStatus.BAD_REQUEST)
+            .send({
+              errorMsg: error
+            });
+          }
+          connection.commit(function(err) {
+            if (err) {
+              return connection.rollback(function() {
+                throw err;
+              });
+            }
+            return res
+            .status(httpStatus.SUCCESS)
+          });
+        });
+      });
       
-  //   }); 
-  // };
+    }); 
+  };
 
   
 }

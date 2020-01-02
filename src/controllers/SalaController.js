@@ -9,7 +9,11 @@ class SalaController {
   listarSalas (req,res) {
     const { id } = req.params;
 
-    connection.query('SELECT * FROM sala WHERE usu_id = ?', id,  function (error, results, fields) {
+    connection.query(`select s.descri, s.data, s.aberta, s.nome, assu.cor, assu.descri as assunDesc
+                      from sala s 
+                      inner join atividade a on s.ativ_id = a.id 
+                      inner join assunto assu on a.assunto_id = assu.id 
+                      WHERE usu_id = ?`, id,  function (error, results, fields) {
       if(error){
         return res
           .status(httpStatus.SERVER_ERROR)

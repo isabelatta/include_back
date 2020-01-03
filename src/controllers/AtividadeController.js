@@ -30,7 +30,9 @@ class AtividadeController {
   listarAtividadesPorAssunto (req, res) {
     const { id } = req.params;
 
-    connection.query('SELECT * FROM atividade WHERE assunto_id = ?', id,  function (error, results, fields) {
+    connection.query('SELECT * FROM atividade WHERE assunto_id = ? ',
+    id,
+    function (error, results, fields) {
       if(error){
         return res
           .status(httpStatus.SERVER_ERROR)
@@ -50,9 +52,11 @@ class AtividadeController {
   }
 
   listarEntradasSaidasPorAtividade (req, res) {
-    const { id } = req.params;
+    const { id, sala_id } = req.params;
 
-    connection.query('SELECT * FROM entrada_saida WHERE ativ_id = ? AND sala_id is NULL', id,  function (error, results, fields) {
+    connection.query('SELECT * FROM entrada_saida WHERE ativ_id = ? AND (sala_id IS NULL OR sala_id = ?)',
+    [id, sala_id],
+    function (error, results, fields) {
       if(error){
         return res
           .status(httpStatus.SERVER_ERROR)
@@ -68,6 +72,49 @@ class AtividadeController {
               });
           }
         }
+    });
+  }
+
+  cadastrarEntradaSaida(req, res) {
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      const inserts = {
+        entrada: req.body.entrada,
+        saida: req.body.saida,
+        ativ_id: req.body.atividade,
+        sala_id: req.body.sala,
+        pendente: true,
+      };
+
+      connection.query('INSERT INTO entrada_saida SET ?', inserts,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send({
+            id: results.insertId,
+            entrada: req.body.entrada,
+            saida: req.body.saida,
+          })
+        });
+      });
+
     });
   }
 
@@ -99,6 +146,27 @@ class AtividadeController {
       // };
 
 
+      // connection.query('DELETE entrada_saida WHERE pendente = 1 AND sala_id = ? AND id NOT IN ?',
+      // [sala_id, entradasSaidas],
+      // function(error, ){
+      //   if (error) {
+      //     connection.rollback();
+      //     return res
+      //     .status(httpStatus.BAD_REQUEST)
+      //     .send({
+      //       errorMsg: error
+      //     });
+      //   }
+      //   connection.commit(function(err) {
+      //     if (err) {
+      //       return connection.rollback(function() {
+      //         throw err;
+      //       });
+      //     }
+      //   });
+      // });
+
+
       const ativ_id = req.body.atividade
 
       connection.query('UPDATE sala SET ativ_id = ? WHERE id = ?', [ativ_id, sala_id] ,
@@ -121,14 +189,26 @@ class AtividadeController {
               errorMsg: error
             });
           }
-          connection.commit(function(err) {
-            if (err) {
-              return connection.rollback(function() {
-                throw err;
+          connection.query('DELETE FROM entrada_saida WHERE pendente = 1 AND sala_id = ? AND id NOT IN (?)',
+          [sala_id, entradasSaidas],
+          function(error, ){
+            if (error) {
+              connection.rollback();
+              return res
+              .status(httpStatus.BAD_REQUEST)
+              .send({
+                errorMsg: error
               });
             }
-            return res
-            .status(httpStatus.SUCCESS)
+            connection.commit(function(err) {
+              if (err) {
+                return connection.rollback(function() {
+                  throw err;
+                });
+              }
+              return res
+              .status(httpStatus.SUCCESS)
+            });
           });
         });
       });
@@ -136,6 +216,11 @@ class AtividadeController {
     }); 
   };
 
+
+  desfazerAtividade(req, res) {
+    const { sala_id } = req.params;
+    console.log(sala_id);
+  }
   
 }
 

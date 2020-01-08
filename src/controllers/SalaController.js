@@ -32,21 +32,48 @@ class SalaController {
     });
   };
 
-  cadastrarSala (req,res) {
-    const { id } = req.params;
-    console.log("Entrou");
+  async cadastrarSala (req,res) {
+
+    let codigo = null;
+    let condicao = true;
+    while (condicao) {
+      codigo = Math.random().toString(36).substring(7);
+      await new Promise((resolve, reject) => {
+        connection.query("SELECT codigo FROM sala WHERE aberta = 1 AND codigo = ?", codigo,
+        (error, results, fields) => {
+          if (error) {
+            condicao = false;
+            resolve();
+          }
+          else {
+            if (results.length === 0) {
+              condicao = false;
+              resolve();
+            } else {
+              condicao = true;
+              resolve();
+            }
+          }
+        });
+      })
+      // condicao = false;
+
+    }
+
+    const inserts = {
+      usu_id: req.body.usuario,
+      nome: req.body.nome, 
+      descri: req.body.descri,
+      data: new Date(req.body.data),
+      aberta: req.body.aberta,
+      codigo
+    };
+
 
     connection.beginTransaction(function(err) {
       if (err) {
         throw err;
       }
-      const inserts = {
-        usu_id: req.body.usuario,
-        nome: req.body.nome, 
-        descri: req.body.descri,
-        data: new Date(req.body.data),
-        aberta: req.body.aberta
-      };
 
       console.log(inserts)
 

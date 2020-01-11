@@ -6,6 +6,6 @@ const AlunoController = require('../controllers/AlunoController')
 router.get('/inserirCodigo/:codigo', AlunoController.inserirCodigo);
 router.get('/infoSala/:codigo', AlunoController.infoSala);
 router.get('/entradaSaidas/:codigo', AlunoController.entradaSaidas);
-
+router.post('/salvarEquipe', AlunoController.salvarEquipe);
 
 module.exports = router;

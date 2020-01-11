@@ -39,7 +39,7 @@ class AlunoController {
 
     const values = [req.params.codigo]
 
-    connection.query(`SELECT * FROM sala s 
+    connection.query(`SELECT *, s.id as sala_id FROM sala s 
                       INNER JOIN atividade a ON s.ativ_id = a.id 
                       WHERE aberta = 1 AND codigo = ?`, values, function (error, results, fields) {
         if(error){
@@ -93,7 +93,51 @@ class AlunoController {
         }
     });  
   };
+
+
+  salvarEquipe (req,res) {
+
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      const inserts = {
+        nome: req.body.nome,
+        id_sala: req.body.sala,
+      };
+      console.log(inserts)
+
+      connection.query('INSERT INTO equipe SET ?', inserts,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send({
+            id: results.insertId,
+          })
+        });
+      });
+
+    });
+  };
   
 }
+
+
+
 
 module.exports = new AlunoController()

@@ -94,6 +94,33 @@ class AlunoController {
     });  
   };
 
+  consultarCodigo (req,res) {
+
+    const values = [req.params.equipe]
+
+    connection.query(`SELECT c.codigo FROM codigo c
+                      WHERE equipe_id = ?`, values, function (error, results, fields) {
+        if(error){
+          return res
+            .status(httpStatus.SERVER_ERROR)
+        } else {
+          if (results.length > 0){
+              return res
+              .status(httpStatus.SUCCESS)
+              .send({
+                codigo: results[0].codigo,
+              });
+          }
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: returnMsg.SALA_NOT_FOUND
+          });
+          
+        }
+    });  
+  };
+
 
   salvarEquipe (req,res) {
 
@@ -129,6 +156,81 @@ class AlunoController {
           .send({
             id: results.insertId,
           })
+        });
+      });
+
+    });
+  };
+
+  salvarCodigo (req,res) {
+
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      const inserts = {
+        codigo: req.body.code,
+        equipe_id: req.body.equipe_id,
+      };
+      console.log(inserts)
+
+      connection.query('INSERT INTO codigo SET ?', inserts,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send({
+            id: results.insertId,
+          })
+        });
+      });
+
+    });
+  };
+
+  editarCodigo (req,res) {
+
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      const codigo = req.body.code;
+      const equipe_id = req.body.equipe_id;
+
+      connection.query('UPDATE codigo SET codigo = ? WHERE equipe_id = ?', [codigo, equipe_id] ,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send()
         });
       });
 

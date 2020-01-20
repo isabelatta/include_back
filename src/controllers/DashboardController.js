@@ -6,27 +6,6 @@ class DashboardController {
 
   constructor () {}
 
-  listarAssuntos (req, res) {
-
-    connection.query('SELECT * FROM assunto',  function (error, results, fields) {
-      if(error){
-        return res
-          .status(httpStatus.SERVER_ERROR)
-      } else {
-          if (results.length > 0) {
-            return res
-            .send(results)
-          } else {
-            return res
-              .status(httpStatus.BAD_REQUEST)
-              .send({
-                errorMsg: returnMsg.EMPTY_CLASS
-              });
-          }
-        }
-    });
-  };
-
   getAtividade (req, res) {
     const { id } = req.params;
 
@@ -72,7 +51,7 @@ class DashboardController {
   listarEquipes(req, res) {
     const { id } = req.params;
 
-    connection.query('SELECT  e.nome FROM sala s INNER JOIN equipe e on s.id = e.id_sala WHERE s.id =?',
+    connection.query('SELECT e.nome, e.finalizado, e.id FROM sala s INNER JOIN equipe e on s.id = e.id_sala WHERE s.id =?',
     [ id ],
     function (error, results, fields) {
       if(error){

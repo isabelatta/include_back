@@ -9,7 +9,7 @@ class SalaController {
   listarSalas (req,res) {
     const { id } = req.params;
 
-    connection.query(`select s.descri, s.data, s.aberta, s.nome, assu.cor, assu.descri as assunDesc
+    connection.query(`select s.id, s.descri, s.data, s.aberta, s.nome, assu.cor, assu.descri as assunDesc
                       from sala s 
                       inner join atividade a on s.ativ_id = a.id 
                       inner join assunto assu on a.assunto_id = assu.id 
@@ -30,6 +30,66 @@ class SalaController {
           }
         }
     });
+  };
+
+  infoSala (req,res) {
+
+    const values = [req.params.id]
+
+    connection.query(`SELECT *, s.id as sala_id FROM sala s 
+                      INNER JOIN atividade a ON s.ativ_id = a.id 
+                      WHERE s.aberta = 1 AND s.id = ?`, values, function (error, results, fields) {
+        if(error){
+          return res
+            .status(httpStatus.SERVER_ERROR)
+        } else {
+          if (results.length > 0){
+            const sala = results[0];
+              return res
+              .status(httpStatus.SUCCESS)
+              .send({
+                sala: sala,
+              });
+          }
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: returnMsg.SALA_NOT_FOUND
+          });
+          
+        }
+    });  
+  };
+
+
+  entradaSaidas (req,res) {
+
+    const values = [req.params.id]
+
+    connection.query(`SELECT es.id ,es.entrada, es.saida, es.sala_id FROM sala s 
+                      INNER JOIN atividade a ON s.ativ_id = a.id 
+                      INNER JOIN sala_entrada_saida ses ON s.id = ses.sala_id 
+                      INNER JOIN entrada_saida es ON ses.ent_sai_id = es.id
+                      WHERE s.aberta = 1 AND s.id = ?`, values, function (error, results, fields) {
+        if(error){
+          return res
+            .status(httpStatus.SERVER_ERROR)
+        } else {
+          if (results.length > 0){
+              return res
+              .status(httpStatus.SUCCESS)
+              .send({
+                entradasSaidas: results,
+              });
+          }
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: returnMsg.SALA_NOT_FOUND
+          });
+          
+        }
+    });  
   };
 
   async cadastrarSala (req,res) {

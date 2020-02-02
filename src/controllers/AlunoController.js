@@ -10,7 +10,7 @@ class AlunoController {
 
     const values = [req.params.codigo]
 
-    connection.query('SELECT codigo FROM sala WHERE aberta = 1 AND codigo = ?', values, function (error, results, fields) {
+    connection.query('SELECT codigo FROM sala WHERE codigo = ?', values, function (error, results, fields) {
         if(error){
           return res
             .status(httpStatus.SERVER_ERROR)
@@ -41,7 +41,7 @@ class AlunoController {
 
     connection.query(`SELECT *, s.id as sala_id FROM sala s 
                       INNER JOIN atividade a ON s.ativ_id = a.id 
-                      WHERE aberta = 1 AND codigo = ?`, values, function (error, results, fields) {
+                      WHERE codigo = ?`, values, function (error, results, fields) {
         if(error){
           return res
             .status(httpStatus.SERVER_ERROR)
@@ -72,7 +72,7 @@ class AlunoController {
                       INNER JOIN atividade a ON s.ativ_id = a.id 
                       INNER JOIN sala_entrada_saida ses ON s.id = ses.sala_id 
                       INNER JOIN entrada_saida es ON ses.ent_sai_id = es.id
-                      WHERE aberta = 1 AND codigo = ?`, values, function (error, results, fields) {
+                      WHERE codigo = ?`, values, function (error, results, fields) {
         if(error){
           return res
             .status(httpStatus.SERVER_ERROR)
@@ -114,7 +114,7 @@ class AlunoController {
           return res
           .status(httpStatus.BAD_REQUEST)
           .send({
-            errorMsg: returnMsg.SALA_NOT_FOUND
+            errorMsg: returnMsg.EMPTY_CODE
           });
           
         }
@@ -208,6 +208,9 @@ class AlunoController {
       if (err) {
         throw err;
       }
+
+      console.log(req.body.code);
+      console.log(req.body.equipe_id);
 
       const codigo = req.body.code;
       const equipe_id = req.body.equipe_id;

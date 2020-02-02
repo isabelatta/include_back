@@ -188,7 +188,7 @@ class DashboardController {
       // });
 
 
-      const ativ_id = req.body.atividade
+      const ativ_id = req.body.atividade;
 
       connection.query('UPDATE sala SET ativ_id = ? WHERE id = ?', [ativ_id, sala_id] ,
       function (error, results, fields) {

@@ -137,6 +137,26 @@ class AtividadeController {
 
       console.log(values);
 
+      connection.query('DELETE FROM sala_entrada_saida WHERE sala_id = ?', [sala_id] ,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+        });
+      }
+      )
+
       // const inserts = {
       //   usu_id: req.body.usuario,
       //   nome: req.body.nome, 

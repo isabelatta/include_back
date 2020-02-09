@@ -72,72 +72,31 @@ class DashboardController {
     });
   }
 
-  // listarEntradasSaidasPorAtividade (req, res) {
-  //   const { id, sala_id } = req.params;
+  salaEstado(req, res) {
+    const { id } = req.params;
 
-  //   connection.query('SELECT * FROM entrada_saida WHERE ativ_id = ? AND (sala_id IS NULL OR sala_id = ?)',
-  //   [id, sala_id],
-  //   function (error, results, fields) {
-  //     if(error){
-  //       return res
-  //         .status(httpStatus.SERVER_ERROR)
-  //     } else {
-  //         if (results.length > 0) {
-  //           return res
-  //           .send(results)
-  //         } else {
-  //           return res
-  //             .status(httpStatus.BAD_REQUEST)
-  //             .send({
-  //               errorMsg: returnMsg.EMPTY_CLASS
-  //             });
-  //         }
-  //       }
-  //   });
-  // }
+    connection.query('SELECT aberta FROM sala WHERE id = ?',
+    [ id ],
+    function (error, results, fields) {
+      if(error){
+        return res
+          .status(httpStatus.SERVER_ERROR)
+      } else {
+          if (results.length > 0) {
+            return res
+            .send(results)
+          } else {
+            return res
+              .status(httpStatus.BAD_REQUEST)
+              .send({
+                errorMsg: returnMsg.EMPTY_CLASS
+              });
+          }
+        }
+    });
+  }
 
-  // cadastrarEntradaSaida(req, res) {
-  //   connection.beginTransaction(function(err) {
-  //     if (err) {
-  //       throw err;
-  //     }
 
-  //     const inserts = {
-  //       entrada: req.body.entrada,
-  //       saida: req.body.saida,
-  //       ativ_id: req.body.atividade,
-  //       sala_id: req.body.sala,
-  //       pendente: true,
-  //     };
-
-  //     connection.query('INSERT INTO entrada_saida SET ?', inserts,
-  //     function (error, results, fields) {
-  //       if (error) {
-  //         connection.rollback();
-  //         return res
-  //         .status(httpStatus.BAD_REQUEST)
-  //         .send({
-  //           errorMsg: error
-  //         });
-  //       }
-  //       connection.commit(function(err) {
-  //         if (err) {
-  //           return connection.rollback(function() {
-  //             throw err;
-  //           });
-  //         }
-  //         return res
-  //         .status(httpStatus.SUCCESS)
-  //         .send({
-  //           id: results.insertId,
-  //           entrada: req.body.entrada,
-  //           saida: req.body.saida,
-  //         })
-  //       });
-  //     });
-
-  //   });
-  // }
 
   cadastrarAtividade(req,res) {
   

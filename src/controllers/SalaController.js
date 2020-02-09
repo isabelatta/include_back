@@ -163,6 +163,44 @@ class SalaController {
     }); 
   };
 
+  fecharSala (req,res) {
+
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      // console.log(req.body.salaId);
+      // console.log(req.body.equipe_id);
+
+      const id = req.body.salaId;
+      const aberta = req.body.aberta;
+
+      connection.query('UPDATE sala SET aberta = ? WHERE id = ?', [aberta, id] ,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send()
+        });
+      });
+
+    });
+  };
+
   
 }
 

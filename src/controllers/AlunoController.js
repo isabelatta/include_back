@@ -239,6 +239,42 @@ class AlunoController {
 
     });
   };
+
+
+  finalizarAtiv (req,res) {
+
+    connection.beginTransaction(function(err) {
+      if (err) {
+        throw err;
+      }
+
+      const id = req.body.idEquipe;
+      const finalizado = req.body.finalizado;
+
+      connection.query('UPDATE equipe SET finalizado = ? WHERE id = ?', [finalizado, id] ,
+      function (error, results, fields) {
+        if (error) {
+          connection.rollback();
+          return res
+          .status(httpStatus.BAD_REQUEST)
+          .send({
+            errorMsg: error
+          });
+        }
+        connection.commit(function(err) {
+          if (err) {
+            return connection.rollback(function() {
+              throw err;
+            });
+          }
+          return res
+          .status(httpStatus.SUCCESS)
+          .send()
+        });
+      });
+
+    });
+  };
   
 }
 

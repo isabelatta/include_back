@@ -10,5 +10,6 @@ router.post('/salvarEquipe', AlunoController.salvarEquipe);
 router.post('/salvarCodigo', AlunoController.salvarCodigo);
 router.put('/editarCodigo', AlunoController.editarCodigo);
 router.get('/consultarCodigo/:equipe', AlunoController.consultarCodigo);
+router.put('/finalizarAtiv', AlunoController.finalizarAtiv);
 
 module.exports = router;

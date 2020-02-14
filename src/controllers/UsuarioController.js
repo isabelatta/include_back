@@ -81,7 +81,11 @@ class UsuarioController {
             });
           }
 
-          return res.status(httpStatus.SUCCESS)
+          return res
+          .status(httpStatus.SUCCESS)
+          .send({
+            success: 'success'
+          })
 
         });
       });
